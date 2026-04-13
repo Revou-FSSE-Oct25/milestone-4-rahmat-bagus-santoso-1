@@ -11,3 +11,60 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAW
+  TRANSFER
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  fullName  String
+  email     String    @unique
+  password  String
+  role      Role      @default(CUSTOMER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  accounts  Account[]
+
+  @@map("users")
+}
+
+model Account {
+  id            Int           @id @default(autoincrement())
+  accountNumber String        @unique
+  balance       Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  userId        Int           @map("user_id")
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destinationTx Transaction[] @relation("destinationTx")
+  sourceTx      Transaction[] @relation("sourceTx")
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Transaction {
+  id                   Int             @id @default(autoincrement())
+  type                 TransactionType
+  amount               Int
+  description          String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  sourceAccountId      Int?            @map("source_account_id")
+  destinationAccountId Int?            @map("destination_account_id")
+  destinationAccount   Account?        @relation("destinationTx", fields: [destinationAccountId], references: [id], onDelete: Cascade)
+  sourceAccount        Account?        @relation("sourceTx", fields: [sourceAccountId], references: [id], onDelete: Cascade)
+
+  @@index([sourceAccountId])
+  @@index([destinationAccountId])
+  @@index([type])
+  @@map("transactions")
+}
