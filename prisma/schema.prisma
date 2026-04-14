@@ -17,10 +17,22 @@ enum Role {
   CUSTOMER
 }
 
+enum AccountStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
 enum TransactionType {
   DEPOSIT
   WITHDRAW
   TRANSFER
+}
+
+enum TransactionStatus {
+  COMPLETED
+  PENDING
+  FAILED
 }
 
 model User {
@@ -40,6 +52,7 @@ model Account {
   id            Int           @id @default(autoincrement())
   accountNumber String        @unique
   balance       Int           @default(0)
+  status        AccountStatus @default(ACTIVE)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   userId        Int           @map("user_id")
@@ -52,16 +65,17 @@ model Account {
 }
 
 model Transaction {
-  id                   Int             @id @default(autoincrement())
+  id                   Int                @id @default(autoincrement())
   type                 TransactionType
   amount               Int
   description          String?
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
-  sourceAccountId      Int?            @map("source_account_id")
-  destinationAccountId Int?            @map("destination_account_id")
-  destinationAccount   Account?        @relation("destinationTx", fields: [destinationAccountId], references: [id], onDelete: Cascade)
-  sourceAccount        Account?        @relation("sourceTx", fields: [sourceAccountId], references: [id], onDelete: Cascade)
+  status               TransactionStatus  @default(COMPLETED)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  sourceAccountId      Int?               @map("source_account_id")
+  destinationAccountId Int?               @map("destination_account_id")
+  destinationAccount   Account?           @relation("destinationTx", fields: [destinationAccountId], references: [id], onDelete: Cascade)
+  sourceAccount        Account?           @relation("sourceTx", fields: [sourceAccountId], references: [id], onDelete: Cascade)
 
   @@index([sourceAccountId])
   @@index([destinationAccountId])

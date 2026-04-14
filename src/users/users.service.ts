@@ -14,7 +14,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const data: Prisma. UserCreateInput = {
+    const data: Prisma.UserCreateInput = {
       ...createUserDto,
       // password: await this.passwordService.hashPassword(createUserDto.password);
     }

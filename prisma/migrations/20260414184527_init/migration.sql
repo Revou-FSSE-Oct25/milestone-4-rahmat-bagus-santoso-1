@@ -2,7 +2,13 @@
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'CUSTOMER');
 
 -- CreateEnum
+CREATE TYPE "AccountStatus" AS ENUM ('ACTIVE', 'BLOCKED', 'DELETED');
+
+-- CreateEnum
 CREATE TYPE "TransactionType" AS ENUM ('DEPOSIT', 'WITHDRAW', 'TRANSFER');
+
+-- CreateEnum
+CREATE TYPE "TransactionStatus" AS ENUM ('COMPLETED', 'PENDING', 'FAILED');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -22,6 +28,7 @@ CREATE TABLE "accounts" (
     "id" SERIAL NOT NULL,
     "accountNumber" TEXT NOT NULL,
     "balance" INTEGER NOT NULL DEFAULT 0,
+    "status" "AccountStatus" NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "user_id" INTEGER NOT NULL,
@@ -35,6 +42,7 @@ CREATE TABLE "transactions" (
     "type" "TransactionType" NOT NULL,
     "amount" INTEGER NOT NULL,
     "description" TEXT,
+    "status" "TransactionStatus" NOT NULL DEFAULT 'COMPLETED',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "source_account_id" INTEGER,
