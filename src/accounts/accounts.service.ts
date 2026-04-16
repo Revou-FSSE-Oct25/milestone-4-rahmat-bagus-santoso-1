@@ -40,18 +40,18 @@ export class AccountsService {
     return account;
   }
 
-  async update(id: number, updateAccountDto: UpdateAccountDto): Promise<Account> {
-    const data: Prisma.AccountUpdateInput = {};
+  // async update(id: number, updateAccountDto: UpdateAccountDto): Promise<Account> {
+  //   const data: Prisma.AccountUpdateInput = {};
 
-    if (updateAccountDto.accountNumber !== undefined ) {
-      data.accountNumber = updateAccountDto.accountNumber;
-    }
+  //   if (updateAccountDto.accountNumber !== undefined ) {
+  //     data.accountNumber = updateAccountDto.accountNumber;
+  //   }
 
-    if (updateAccountDto.userId !== undefined ) {
-      data.user = 
-    }
-    return 
-  }
+  //   if (updateAccountDto.userId !== undefined ) {
+  //     data.user = 
+  //   }
+  //   return 
+  // }
 
   remove(id: number) {
     return `This action removes a #${id} account`;

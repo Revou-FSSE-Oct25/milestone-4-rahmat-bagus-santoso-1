@@ -17,6 +17,9 @@ import { UsersModule } from "../users/users.module";
         PassportModule,
         JwtModule.register({
             secret: process.env.JWT_SECRET,
+            signOptions: {
+                expiresIn: process.env.JWT_EXPIRES_IN as any
+            },
         }),
     ],
     controllers: [AuthController],

@@ -34,38 +34,63 @@ export class UsersService {
   }
 
   async findAll(): Promise<SafeUser[]> {
-    return this.usersRepository.findAll();
+    const users = await this.usersRepository.findAll();
+    return users.map((user) => this.toSafeUser(user));
   }
 
-  
   async findOne(id: number): Promise<SafeUser> {
     const user = await this.usersRepository.findById(id);
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    return user;
+    return this.toSafeUser(user);
   }
 
-  // untuk login dan pengecekan email unik saat register
-  findByEmail(email: string): Promise<User | null> { 
+  async findByEmail(email: string): Promise<User | null> { 
     return this.usersRepository.findByEmail(email);
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<SafeUser> {
+    const existingUser = await this.usersRepository.findById(id);
+
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+    
+    if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
+      const existingEmail = await this.usersRepository.findByEmail(updateUserDto.email);
+
+      if (existingEmail) {
+        throw new ConflictException('Email already in use');
+      }
+    }
+
     const data: Prisma.UserUpdateInput = {
       ...updateUserDto,
     };
 
+    if (updateUserDto.password) {
+      data.password = await this.passwordService.hashPassword(updateUserDto.password);
+    }
+
+    const updatedUser = await this.usersRepository.update(id,data);
+
    
-    return this.usersRepository.update(id, data);
+    return this.toSafeUser(updatedUser);
   }
 
-  remove(id: number): Promise<User> {
-    return this.usersRepository.remove(id);
+  async remove(id: number): Promise<SafeUser> {
+    const existingUser =  await this.usersRepository.findById(id);
+
+    if (!existingUser) {
+      throw new NotFoundException('User not found')
+    }
+    const deletedUser = await this.usersRepository.remove(id);
+    return this.toSafeUser(deletedUser);
   }
 
-  toSafeUser(user: User): SafeUser {
+  private toSafeUser(user: User): SafeUser {
     const { password: _password, ...safeUser } = user;
     return  safeUser;
   }

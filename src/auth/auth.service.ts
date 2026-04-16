@@ -16,13 +16,11 @@ export class AuthService {
 
     
     async register(registerDto: RegisterDto){
-        const user = await this.usersService.create({
-            ...registerDto,
-        });
+        const user = await this.usersService.create(registerDto);
 
         return {
             message: 'User registered successfully',
-            user,
+            data: user,
         };
     }
 
@@ -49,7 +47,8 @@ export class AuthService {
         };
 
         return {
-        access_token: this.jwtService.sign(payload),
+            message: 'Login successful',
+        accessToken: this.jwtService.sign(payload),
         }
     }
 
