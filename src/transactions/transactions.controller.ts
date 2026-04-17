@@ -1,34 +1,65 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import type { AuthenticatedRequest } from 'src/types/authenticated.request';
+import { DepositDto } from './dto/deposit.dto';
+import { WithdrawDto } from './dto/withdraw.dto';
+import { TransferDto } from './dto/transfer.dto';
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
+  @Post('deposit')
+  deposit(
+    @Req() request: AuthenticatedRequest,
+    @Body() depositDto: DepositDto,
+  ) {
+    return this.transactionsService.deposit(request.user.userId, depositDto);
+  }
+
+  @Post('withdraw')
+  withdraw(
+    @Req() request: AuthenticatedRequest,
+    @Body() withdrawDto: WithdrawDto,
+  ) {
+    return this.transactionsService.withdraw(request.user.userId, withdrawDto);
+  }
+
+  @Post('transfer')
+  transfer(
+    @Req() request: AuthenticatedRequest,
+    @Body() transferDto: TransferDto,
+  ) {
+    return this.transactionsService.transfer(request.user.userId, transferDto);
   }
 
   @Get()
-  findAll() {
-    return this.transactionsService.findAll();
+  findAll(@Req() request: AuthenticatedRequest) {
+    return this.transactionsService.findAll(
+      request.user.userId,
+      request.user.role,
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
-    return this.transactionsService.update(+id, updateTransactionDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transactionsService.remove(+id);
+  findOne(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.transactionsService.findOne(
+      id,
+      request.user.userId,
+      request.user.role,
+    )
   }
 }
