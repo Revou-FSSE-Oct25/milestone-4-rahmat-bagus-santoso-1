@@ -49,9 +49,9 @@ export class AccountsRepository {
     });
   }
 
-  //   remove(id: number) {
-  //     return this.prisma.user.delete({
-  //       where: { id },
-  //     });
-  //   }
+    remove(id: number) {
+      return this.prisma.account.delete({
+        where: { id },
+      });
+    }
 }

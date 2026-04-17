@@ -1,5 +1,5 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma, Role } from '@prisma/client';
 import { Account } from './entities/account.entity';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -37,30 +37,44 @@ export class AccountsService {
     return this.accountsRepository.findAll();
   }
 
-  async findOne(id: number): Promise<Account> {
+  async findOne(id: number, userId: number, role: Role): Promise<Account> {
     const account = await this.accountsRepository.findById(id);
 
     if (!account) {
-      throw new NotFoundException(`Account with ID ${id} not found`);
+      throw new NotFoundException(`Account not found for this user`);
     }
+
+    if (role !== Role.ADMIN && account.userId !== userId) {
+      throw new ForbiddenException('You cannot access this account');
+    }
+
     return account;
   }
 
-  // async update(id: number, updateAccountDto: UpdateAccountDto): Promise<Account> {
-  //   const data: Prisma.AccountUpdateInput = {};
+  async update(id: number, updateAccountDto: UpdateAccountDto): Promise<Account> {
+    const account = await this.accountsRepository.findById(id);
 
-  //   if (updateAccountDto.accountNumber !== undefined ) {
-  //     data.accountNumber = updateAccountDto.accountNumber;
-  //   }
+    if(!account) {
+      throw new NotFoundException(`Account with ID ${id} not found`);
+    }
 
-  //   if (updateAccountDto.userId !== undefined ) {
-  //     data.user = 
-  //   }
-  //   return 
-  // }
+    const data: Prisma.AccountUpdateInput = {};
 
-  remove(id: number) {
-    return `This action removes a #${id} account`;
+    if (updateAccountDto.status !== undefined ) {
+      data.status = updateAccountDto.status;
+    }
+
+    return this.accountsRepository.update(account.id, data);
+  }
+
+  async remove(id: number): Promise<Account> {
+    const account = await this.accountsRepository.findById(id);
+
+    if(!account) {
+      throw new NotFoundException(`Account with ID ${id} not found`);
+    }
+    
+    return this.accountsRepository.remove(account.id);
   }
 
   private async generateUniqueAccountNumber(): Promise<string> {
@@ -77,7 +91,7 @@ export class AccountsService {
 
   private generateAccountNumber(): string {
     const prefix = '10';
-    const randomDigits = Math.floor(Math.random() * 1000000000)
+    const randomDigits = Math.floor(Math.random() * 100000000)
     .toString()
     .padStart(8, '0');
 
