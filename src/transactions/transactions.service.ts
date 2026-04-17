@@ -7,7 +7,7 @@ import {
 import { TransactionsRepository } from './transactions.repository';
 import { DepositDto } from './dto/deposit.dto';
 import { Transaction } from './entities/transaction.entity';
-import { Role, TransactionStatus, TransactionType } from '@prisma/client';
+import { AccountStatus, Role, TransactionStatus, TransactionType } from '@prisma/client';
 import { WithdrawDto } from './dto/withdraw.dto';
 import { TransferDto } from './dto/transfer.dto';
 
@@ -29,6 +29,8 @@ export class TransactionsService {
     if (account.userId !== userId) {
       throw new ForbiddenException('You cannot deposit to this account');
     }
+
+    this.validateAccountStatus(account.status);
 
     return this.transactionsRepository.runInTransaction(async (tx) => {
       const updatedbalance = account.balance + depositDto.amount;
@@ -68,6 +70,8 @@ export class TransactionsService {
       throw new ForbiddenException('You cannot withdraw from this account');
     }
 
+    this.validateAccountStatus(account.status);
+
     if (account.balance < withdrawDto.amount) {
       throw new BadRequestException('Insufficient balance');
     }
@@ -97,7 +101,7 @@ export class TransactionsService {
   async transfer(userId: number, transferDto: TransferDto): Promise<Transaction> {
     if (transferDto.sourceAccountId === transferDto.destinationAccountId) {
       throw new BadRequestException(
-        'Source account number and destination account number must be different',
+        'Source account and destination account must be different',
       );
     }
 
@@ -111,13 +115,13 @@ export class TransactionsService {
 
     if(!sourceAccount) {
       throw new NotFoundException(
-        'Source account number not found'
+        'Source account not found'
       );
     }
 
     if(!destinationAccount) {
       throw new NotFoundException(
-        'Destination account number not found'
+        'Destination account not found'
       );
     }
 
@@ -126,6 +130,9 @@ export class TransactionsService {
         'You cannot transfer from this source account'
       );
     }
+
+    this.validateAccountStatus(sourceAccount.status);
+    this.validateAccountStatus(destinationAccount.status);
 
     if (sourceAccount.balance < transferDto.amount) {
       throw new BadRequestException('Insufficient balance');
@@ -141,7 +148,7 @@ export class TransactionsService {
       await this.transactionsRepository.updateAccountBalance(
         tx,
         destinationAccount.id,
-        sourceAccount.balance - transferDto.amount,
+        destinationAccount.balance + transferDto.amount,
       );
 
       return this.transactionsRepository.createTransaction(tx, {
@@ -188,5 +195,15 @@ export class TransactionsService {
     }
 
     return transaction;
+  }
+
+  private validateAccountStatus(status: AccountStatus): void {
+    if (status === AccountStatus.BLOCKED) {
+      throw new BadRequestException('Account withis blocked');
+    }
+
+    if (status === AccountStatus.DELETED) {
+      throw new BadRequestException('Account is deleted');
+    }
   }
 }
