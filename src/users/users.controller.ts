@@ -5,14 +5,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import type { AuthenticatedRequest } from '../types/authenticated.request';
 
-type AuthenticatedRequest = Request & {
-  user: {
-    userId: number;
-    email: string;
-    role: Role;
-  };
-};
+
 
 
 @Controller('users')

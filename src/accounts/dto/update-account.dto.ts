@@ -1,4 +1,10 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateAccountDto } from './create-account.dto';
+import { IsEnum, IsOptional } from 'class-validator';
+import { AccountStatus } from '@prisma/client';
 
-export class UpdateAccountDto extends PartialType(CreateAccountDto) {}
+export class UpdateAccountDto extends PartialType(CreateAccountDto) {
+    @IsOptional()
+    @IsEnum(AccountStatus)
+    status?: AccountStatus;
+}
