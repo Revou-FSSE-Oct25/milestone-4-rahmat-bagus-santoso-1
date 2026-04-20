@@ -9,7 +9,7 @@ import type { AuthenticatedRequest } from '../types/authenticated.request';
 
 
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
