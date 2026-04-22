@@ -2,6 +2,9 @@
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'CUSTOMER');
 
 -- CreateEnum
+CREATE TYPE "AccountType" AS ENUM ('SAVINGS', 'CHECKING');
+
+-- CreateEnum
 CREATE TYPE "AccountStatus" AS ENUM ('ACTIVE', 'BLOCKED', 'DELETED');
 
 -- CreateEnum
@@ -28,6 +31,7 @@ CREATE TABLE "accounts" (
     "id" SERIAL NOT NULL,
     "accountNumber" TEXT NOT NULL,
     "balance" INTEGER NOT NULL DEFAULT 0,
+    "type" "AccountType" NOT NULL DEFAULT 'SAVINGS',
     "status" "AccountStatus" NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -73,7 +77,7 @@ CREATE INDEX "transactions_type_idx" ON "transactions"("type");
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_destination_account_id_fkey" FOREIGN KEY ("destination_account_id") REFERENCES "accounts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_destination_account_id_fkey" FOREIGN KEY ("destination_account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_source_account_id_fkey" FOREIGN KEY ("source_account_id") REFERENCES "accounts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_source_account_id_fkey" FOREIGN KEY ("source_account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -15,11 +15,15 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 import type { AuthenticatedRequest } from '../types/authenticated.request';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Accounts')
+@ApiBearerAuth()
 @Controller('accounts')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
+  @ApiOperation({ summary: 'Create account for current user' })
   @Post()
   create(
     @Req() request: AuthenticatedRequest,
@@ -28,12 +32,13 @@ export class AccountsController {
     return this.accountsService.create(request.user.userId, createAccountDto);
   }
 
-  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get account for current user'})
   @Get()
-  findAll() {
-    return this.accountsService.findAll();
+  findAll(@Req() request: AuthenticatedRequest) {
+    return this.accountsService.findAll(request.user.userId, request.user.role);
   }
 
+  @ApiOperation({ summary: 'Get account detail' })
   @Get(':id')
   findOne(
     @Req() request: AuthenticatedRequest,
@@ -46,22 +51,31 @@ export class AccountsController {
     );
   }
 
-  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'update account' })
   @Patch(':id')
   update(
+    @Req() request: AuthenticatedRequest,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateAccountDto: UpdateAccountDto,
   ) {
     return this.accountsService.update(
-      id, updateAccountDto,
+      id,
+      request.user.userId,
+      request.user.role,
+      updateAccountDto,
     );
   }
 
-  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'delete account' })
   @Delete(':id')
   remove(
+    @Req() request: AuthenticatedRequest,
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.accountsService.remove(id);
+    return this.accountsService.remove(
+      id,
+      request.user.userId,
+      request.user.role,
+    );
   }
 }

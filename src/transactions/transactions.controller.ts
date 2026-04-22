@@ -12,11 +12,15 @@ import type { AuthenticatedRequest } from 'src/types/authenticated.request';
 import { DepositDto } from './dto/deposit.dto';
 import { WithdrawDto } from './dto/withdraw.dto';
 import { TransferDto } from './dto/transfer.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Transactions')
+@ApiBearerAuth()
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
+  @ApiOperation({ summary: 'Deposit' })
   @Post('deposit')
   deposit(
     @Req() request: AuthenticatedRequest,
@@ -25,6 +29,7 @@ export class TransactionsController {
     return this.transactionsService.deposit(request.user.userId, depositDto);
   }
 
+  @ApiOperation({ summary: 'Withdraw' })
   @Post('withdraw')
   withdraw(
     @Req() request: AuthenticatedRequest,
@@ -33,6 +38,7 @@ export class TransactionsController {
     return this.transactionsService.withdraw(request.user.userId, withdrawDto);
   }
 
+  @ApiOperation({ summary: 'Transfer to other Account ID' })
   @Post('transfer')
   transfer(
     @Req() request: AuthenticatedRequest,

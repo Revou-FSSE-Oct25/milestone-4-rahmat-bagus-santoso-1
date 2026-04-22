@@ -18,10 +18,17 @@ export class AccountsRepository {
     });
   }
 
+  findAllByUserId(userId: number) {
+    return this.prisma.account.findMany({
+      where: { userId },
+      orderBy: { id: 'asc' },
+    });
+  }
+
   findById(id: number) {
     return this.prisma.account.findUnique({
       where: {
-        id
+        id,
       },
     });
   }
@@ -49,9 +56,22 @@ export class AccountsRepository {
     });
   }
 
-    remove(id: number) {
-      return this.prisma.account.delete({
-        where: { id },
-      });
-    }
+  async hasTransactions(accountId: number): Promise<boolean> {
+    const count = await this.prisma.transaction.count({
+      where: {
+        OR: [
+          { sourceAccountId: accountId },
+          { destinationAccountId: accountId },
+        ],
+      },
+    });
+
+    return count > 0;
+  }
+
+  remove(id: number) {
+    return this.prisma.account.delete({
+      where: { id },
+    });
+  }
 }

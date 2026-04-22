@@ -5,37 +5,44 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import type { AuthenticatedRequest } from '../types/authenticated.request';
+import { UpdateProfileDTO } from './dto/update-profile.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 
 
-
-@Controller('user')
+@ApiTags('Users')
+@ApiBearerAuth()
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiOperation({ summary: 'Get profile for current user'})
+  @Get('profile')
+  async getProfile(@Req() request: AuthenticatedRequest): Promise<SafeUser> {
+    return this.usersService.findOne(request.user.userId)
+  }
+
+  @ApiOperation({ summary: 'Update profile for current user'})
+  @Patch('profile')
+  async updateProfile(
+    @Req() request: AuthenticatedRequest,
+    @Body() updateProfileDto: UpdateProfileDTO,
+  ): Promise<SafeUser> {
+    return this.usersService.update(request.user.userId, updateProfileDto);
+  }
+
+  @ApiOperation({ summary: 'Create user by ADMIN'})
   @Roles(Role.ADMIN)
   @Post()
   create(@Body() createUserDto: CreateUserDto): Promise<SafeUser> {
     return this.usersService.create(createUserDto);
   }
 
+  @ApiOperation({ summary: 'Delete User By Admin'})
   @Roles(Role.ADMIN)
   @Get()
   findAll(): Promise<SafeUser[]> {
     return this.usersService.findAll();
-  }
-
-  @Get('profile')
-  async getProfile(@Req() request: AuthenticatedRequest): Promise<SafeUser> {
-    return this.usersService.findOne(request.user.userId)
-  }
-
-  @Patch('profile')
-  async updateProfile(
-    @Req() request: AuthenticatedRequest,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<SafeUser> {
-    return this.usersService.update(request.user.userId, updateUserDto);
   }
 
   @Roles(Role.ADMIN)

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, Role, AccountStatus, TransactionType, TransactionStatus } from '@prisma/client';
+import { PrismaClient, Role, AccountType, AccountStatus, TransactionType, TransactionStatus } from '@prisma/client';
 import { PasswordService } from '../src/password/password.service';
 
 
@@ -54,6 +54,7 @@ async function main() {
         data: {
             accountNumber: '1122334455',
             balance: 1000000,
+            type: AccountType.SAVINGS,
             status: AccountStatus.ACTIVE,
             userId: customer1.id,
         },

@@ -13,12 +13,6 @@ export class AccountsService {
 
 
   async create(userId: number, _createAccountDto: CreateAccountDto): Promise<Account> {
-    const existingUser = await this.accountsRepository.findByUserId(userId);
-
-    if(existingUser) {
-      throw new ConflictException('User already has an account');
-    }
-
     const accountNumber = await this.generateUniqueAccountNumber();
 
     const data: Prisma.AccountCreateInput = {
@@ -33,8 +27,11 @@ export class AccountsService {
     return this.accountsRepository.create(data);
   }
 
-  async findAll(): Promise<Account[]> {
-    return this.accountsRepository.findAll();
+  async findAll(userId: number, role: Role): Promise<Account[]> {
+    if (role == Role.ADMIN) {
+      return this.accountsRepository.findAll();
+    }
+    return this.accountsRepository.findAllByUserId(userId);
   }
 
   async findOne(id: number, userId: number, role: Role): Promise<Account> {
@@ -51,11 +48,15 @@ export class AccountsService {
     return account;
   }
 
-  async update(id: number, updateAccountDto: UpdateAccountDto): Promise<Account> {
+  async update(id: number, userId: number, role: Role, updateAccountDto: UpdateAccountDto): Promise<Account> {
     const account = await this.accountsRepository.findById(id);
 
     if(!account) {
       throw new NotFoundException(`Account with ID ${id} not found`);
+    }
+
+    if (role !== Role.ADMIN && account.userId !== userId) {
+      throw new ForbiddenException('You can only update your own account');
     }
 
     const data: Prisma.AccountUpdateInput = {};
@@ -67,13 +68,26 @@ export class AccountsService {
     return this.accountsRepository.update(account.id, data);
   }
 
-  async remove(id: number): Promise<Account> {
+  async remove(id: number, userId: number, role: Role): Promise<Account> {
     const account = await this.accountsRepository.findById(id);
 
     if(!account) {
       throw new NotFoundException(`Account with ID ${id} not found`);
     }
+
+    if (role !== Role.ADMIN && account.userId !== userId) {
+      throw new ForbiddenException('You can only delete your own account');
+    }
     
+    if (account.balance > 0) {
+      throw new ConflictException('Account with balance cannot be deleted');
+    }
+
+    const hasTransactions = await this.accountsRepository.hasTransactions(id);
+    
+    if(hasTransactions) {
+      throw new ConflictException('Account with transactions cannot be deleted');
+    }
     return this.accountsRepository.remove(account.id);
   }
 
