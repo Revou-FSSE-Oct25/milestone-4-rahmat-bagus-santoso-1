@@ -47,6 +47,7 @@ export class TransactionsController {
     return this.transactionsService.transfer(request.user.userId, transferDto);
   }
 
+  @ApiOperation({ summary: 'Get transaction history' })
   @Get()
   findAll(@Req() request: AuthenticatedRequest) {
     return this.transactionsService.findAll(
@@ -55,6 +56,7 @@ export class TransactionsController {
     );
   }
 
+  @ApiOperation({ summary: 'Get transaction detail' })
   @Get(':id')
   findOne(
     @Req() request: AuthenticatedRequest,

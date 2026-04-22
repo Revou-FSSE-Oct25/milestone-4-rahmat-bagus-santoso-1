@@ -12,7 +12,7 @@ export class TransferDto {
     @IsNotEmpty()
     destinationAccountId!: number;
 
-    @ApiProperty({ description: 'transfer amount' })
+    @ApiProperty({  example: 10000, description: 'transfer amount' })
     @IsInt()
     @IsPositive()
     @IsNotEmpty()

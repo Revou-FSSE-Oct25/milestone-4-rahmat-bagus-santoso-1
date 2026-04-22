@@ -38,7 +38,7 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @ApiOperation({ summary: 'Delete User By Admin'})
+  @ApiOperation({ summary: 'Get All Users By Admin'})
   @Roles(Role.ADMIN)
   @Get()
   findAll(): Promise<SafeUser[]> {
@@ -47,18 +47,21 @@ export class UsersController {
 
   @Roles(Role.ADMIN)
   @Get(':id')
+  @ApiOperation({ summary: 'Get user detail by admin' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<SafeUser> {
     return this.usersService.findOne(id);
   }
 
   @Roles(Role.ADMIN)
   @Patch(':id')
+  @ApiOperation({ summary: 'Update user by admin' })
   update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto): Promise<SafeUser> {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Roles(Role.ADMIN)
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete user by admin' })
   remove(@Param('id', ParseIntPipe) id: number): Promise<SafeUser> {
     return this.usersService.remove(id);
   }

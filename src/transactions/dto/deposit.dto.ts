@@ -6,7 +6,7 @@ export class DepositDto {
     @IsInt()
     accountId!: number;
 
-    @ApiProperty({ description: 'Deposit amount' })
+    @ApiProperty({ example: 50000, description: 'Deposit amount' })
     @IsInt()
     @IsPositive()
     @IsNotEmpty()

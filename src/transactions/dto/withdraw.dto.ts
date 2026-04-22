@@ -6,7 +6,7 @@ export class WithdrawDto {
     @IsInt()
     accountId!: number;
 
-    @ApiProperty({ example: 50000, description: 'withdraw amount' })
+    @ApiProperty({  example: 50000, description: 'withdraw amount' })
     @IsInt()
     @IsPositive()
     @IsNotEmpty()
