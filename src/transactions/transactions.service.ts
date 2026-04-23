@@ -199,7 +199,7 @@ export class TransactionsService {
 
   private validateAccountStatus(status: AccountStatus): void {
     if (status === AccountStatus.BLOCKED) {
-      throw new BadRequestException('Account withis blocked');
+      throw new BadRequestException('Account is blocked');
     }
 
     if (status === AccountStatus.DELETED) {

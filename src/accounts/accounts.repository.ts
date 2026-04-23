@@ -33,13 +33,13 @@ export class AccountsRepository {
     });
   }
 
-  findByUserId(userId: number) {
-    return this.prisma.account.findFirst({
-      where: {
-        userId,
-      },
-    });
-  }
+  // findByUserId(userId: number) {
+  //   return this.prisma.account.findFirst({
+  //     where: {
+  //       userId,
+  //     },
+  //   });
+  // }
 
   findByAccountNumber(accountNumber: string) {
     return this.prisma.account.findUnique({

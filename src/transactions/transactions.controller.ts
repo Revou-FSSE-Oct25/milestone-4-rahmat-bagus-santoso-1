@@ -15,7 +15,7 @@ import { TransferDto } from './dto/transfer.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Transactions')
-@ApiBearerAuth()
+@ApiBearerAuth('authBearer')
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}

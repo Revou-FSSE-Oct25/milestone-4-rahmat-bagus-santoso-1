@@ -1,5 +1,5 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, Role } from '@prisma/client';
+import { AccountType, Prisma, Role } from '@prisma/client';
 import { Account } from './entities/account.entity';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -12,11 +12,12 @@ export class AccountsService {
   ) {}
 
 
-  async create(userId: number, _createAccountDto: CreateAccountDto): Promise<Account> {
+  async create(userId: number, createAccountDto: CreateAccountDto): Promise<Account> {
     const accountNumber = await this.generateUniqueAccountNumber();
 
     const data: Prisma.AccountCreateInput = {
       accountNumber,
+      type: createAccountDto.type ?? AccountType.SAVINGS,
       user: {
         connect: {
           id: userId,
