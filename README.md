@@ -8,7 +8,7 @@ Fictional Banking API is a backend application built with NestJS, Prisma, and Po
 This project was developed to practice building a modular REST API with relational database design, JWT-based authentication, and Prisma integration.
 
 
-# Demo
+## Demo
 ** Railway :** [Demo Link](https://superb-radiance-production-4003.up.railway.app)
 
 ## Features Implemented
@@ -43,7 +43,7 @@ This project was developed to practice building a modular REST API with relation
 
 All endpoints use the `/api/v1` prefix.
 
-Public endpooints:
+Public endpoints:
 ### Auth
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
@@ -96,7 +96,7 @@ BCRYPT_SALT_ROUND=10
 ### Prisma
 ```
 # Run Prisma migration
-npx prisma migrate
+npx prisma migrate dev
 
 # Generate Prisma Client
 npx prisma generate
@@ -120,7 +120,7 @@ The application will run at:
 - http://localhost:3000
 - Swagger: http://localhost:3000/api/docs
 
-## Run Test
+## Run Tests
 ```
 # unit test
 npm run test
@@ -136,8 +136,7 @@ api-endpoints-guide.md
 ```
 
 ## Project Structure
-
-```bash
+```
 .
 ├── prisma
 │   ├── migrations
